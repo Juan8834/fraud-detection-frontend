@@ -1,0 +1,46 @@
+/* Component-specific styles only; no Tailwind base imports here */
+
+/* Logo styling */
+.logo {
+  @apply h-24 p-6 transition duration-300; /* smooth hover */
+  will-change: filter;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* Logo spin animation */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+/* Card styling */
+.card {
+  @apply p-8 bg-white shadow-md rounded-lg;
+}
+
+/* Text styling */
+.read-the-docs {
+  @apply text-gray-500;
+}
+
+/* Text styling */
+.read-the-docs {
+  @apply text-gray-500;
+}

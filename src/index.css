@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global text-size adjustment for all browsers */
+html,
+:host {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Body styling */
+body {
+  @apply bg-gray-100 text-gray-900 font-sans;
+  margin: 0;
+  padding: 0;
+}
+
+/* Root container */
+#root {
+  @apply max-w-7xl mx-auto p-6;
+}
+
+/* Number input fixes across browsers */
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* Chrome, Safari, Edge */
+  margin: 0;
+}
