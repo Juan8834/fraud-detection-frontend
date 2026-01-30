@@ -14,6 +14,11 @@ import {
 } from "recharts";
 
 /* ======================
+   Config
+====================== */
+const API_URL = "http://localhost:5000";
+
+/* ======================
    Types
 ====================== */
 type EmployeeConnection = {
@@ -44,7 +49,7 @@ const CustomersPage: React.FC = () => {
 
   // Filter & search states
   const [customerSearchName, setCustomerSearchName] = useState("");
-  const [riskFilter,] = useState<RiskFilter>("ALL");
+  const [riskFilter] = useState<RiskFilter>("ALL");
   const [employeeSearch, setEmployeeSearch] = useState("");
 
   // Hover state for chart → table highlighting
@@ -54,9 +59,13 @@ const CustomersPage: React.FC = () => {
 
   useEffect(() => {
     async function fetchTransactions() {
-      const res = await fetch("http://localhost:5000/transactions");
-      const data = await res.json();
-      setTransactions(data);
+      try {
+        const res = await fetch(`${API_URL}/transactions`);
+        const data: Transaction[] = await res.json();
+        setTransactions(data);
+      } catch (err) {
+        console.error("❌ Failed to fetch transactions", err);
+      }
     }
     fetchTransactions();
   }, []);
@@ -98,8 +107,7 @@ const CustomersPage: React.FC = () => {
       }
 
       emp.count += 1;
-      emp.avgRisk =
-        (emp.avgRisk * (emp.count - 1) + t.riskScore) / emp.count;
+      emp.avgRisk = (emp.avgRisk * (emp.count - 1) + t.riskScore) / emp.count;
       emp.suspicious = customer.avgRisk >= 75 && emp.avgRisk >= 75;
     });
 
@@ -112,18 +120,15 @@ const CustomersPage: React.FC = () => {
   const topRiskCustomers = useMemo(() => customers.slice(0, 3), [customers]);
 
   /* ======================
-     Filter Customers (MATCHES EmployeesPage)
+     Filter Customers
   ====================== */
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
-      const matchesName = c.name
-        .toLowerCase()
-        .includes(customerSearchName.toLowerCase());
+      const matchesName = c.name.toLowerCase().includes(customerSearchName.toLowerCase());
 
       let matchesRisk = true;
       if (riskFilter === "HIGH") matchesRisk = c.avgRisk >= 75;
-      else if (riskFilter === "MEDIUM")
-        matchesRisk = c.avgRisk >= 40 && c.avgRisk < 75;
+      else if (riskFilter === "MEDIUM") matchesRisk = c.avgRisk >= 40 && c.avgRisk < 75;
       else if (riskFilter === "LOW") matchesRisk = c.avgRisk < 40;
 
       return matchesName && matchesRisk;
@@ -205,9 +210,7 @@ const CustomersPage: React.FC = () => {
               dataKey="transactions"
               name="Transactions"
               fill="#3b82f6"
-              onClick={(data: any) =>
-                data?.name && handleChartClick(data.name)
-              }
+              onClick={(data: any) => data?.name && handleChartClick(data.name)}
               onMouseEnter={(data: any) => setHoveredCustomer(data?.name || null)}
               onMouseLeave={() => setHoveredCustomer(null)}
             />
@@ -250,9 +253,7 @@ const CustomersPage: React.FC = () => {
                     isSelected(c.name) ? "bg-blue-100" : "hover:bg-gray-50"
                   }`}
                   onClick={() =>
-                    setExpandedCustomerId(
-                      expandedCustomerId === c.id ? null : c.id
-                    )
+                    setExpandedCustomerId(expandedCustomerId === c.id ? null : c.id)
                   }
                 >
                   <td className="p-3 font-medium">{c.name}</td>
@@ -281,24 +282,18 @@ const CustomersPage: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {c.employees
                           .filter((e) =>
-                            e.name
-                              .toLowerCase()
-                              .includes(employeeSearch.toLowerCase())
+                            e.name.toLowerCase().includes(employeeSearch.toLowerCase())
                           )
                           .map((e) => (
                             <div
                               key={e.id}
                               className="border rounded p-3 bg-white hover:shadow cursor-pointer"
                               onClick={() =>
-                                navigate(
-                                  `/transactions?employeeId=${e.id}&customerId=${c.id}`
-                                )
+                                navigate(`/transactions?employeeId=${e.id}&customerId=${c.id}`)
                               }
                             >
                               <div className="font-medium">{e.name}</div>
-                              <div className="text-sm">
-                                Transactions: {e.count}
-                              </div>
+                              <div className="text-sm">Transactions: {e.count}</div>
                               <div className="text-sm">
                                 Avg Risk: <strong>{e.avgRisk.toFixed(1)}</strong>
                               </div>

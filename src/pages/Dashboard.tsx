@@ -14,6 +14,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { Transaction } from "../types/transaction";
+import { API_URL } from "../api/config";
 
 /* ======================
    Colors
@@ -38,9 +39,13 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch("http://localhost:5000/transactions");
-      const data: Transaction[] = await res.json();
-      setTransactions(data);
+      try {
+        const res = await fetch(`${API_URL}/transactions`);
+        const data: Transaction[] = await res.json();
+        setTransactions(data);
+      } catch (err) {
+        console.error("❌ Failed to load transactions", err);
+      }
     }
     fetchData();
   }, []);
@@ -216,8 +221,7 @@ const Dashboard: React.FC = () => {
               onClick={(data) => {
                 const riskLevel = (data as any).level;
                 if (riskLevel === "low") navigate("/transactions?minRisk=0&maxRisk=39");
-                if (riskLevel === "medium")
-                  navigate("/transactions?minRisk=40&maxRisk=74");
+                if (riskLevel === "medium") navigate("/transactions?minRisk=40&maxRisk=74");
                 if (riskLevel === "high") navigate("/transactions?minRisk=75");
               }}
               onMouseOver={(data) => setHoveredRiskLevel((data as any).level)}

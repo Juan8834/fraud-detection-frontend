@@ -3,9 +3,12 @@ import { useLocation } from "react-router-dom";
 import RiskFilter from "../components/RiskFilter";
 import TransactionDetails from "../components/TransactionDetails";
 import PageContainer from "../components/PageContainer";
-import TransactionTable from "../components/TransactionTable"; // ✅ Import the table
+import TransactionTable from "../components/TransactionTable";
 import type { Transaction } from "../types/transaction";
-import type { Employee } from "../api/employees"; // ✅ Use API Employee type
+import type { Employee } from "../api/employees";
+
+// ✅ Shared API URL (Vite + Vercel safe)
+const API_URL = import.meta.env.VITE_API_URL;
 
 const TransactionsPage: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -19,16 +22,17 @@ const TransactionsPage: React.FC = () => {
 
   const employeeIdParam = searchParams.get("employeeId");
   const customerIdParam = searchParams.get("customerId");
-  const typeParam = searchParams.get("type"); // ✅ Chart filter: type
-  const minRiskParam = searchParams.get("minRisk"); // ✅ Chart filter: minRisk
-  const maxRiskParam = searchParams.get("maxRisk"); // ✅ Chart filter: maxRisk
+  const typeParam = searchParams.get("type");
+  const minRiskParam = searchParams.get("minRisk");
+  const maxRiskParam = searchParams.get("maxRisk");
 
   useEffect(() => {
     async function fetchTransactions() {
       try {
-        const res = await fetch("http://localhost:5000/transactions");
+        const res = await fetch(`${API_URL}/transactions`);
         const data: Transaction[] = await res.json();
-        console.log("TX TYPES:", data.map((t) => t.type)); // 🔥 Proof log
+
+        console.log("TX TYPES:", data.map((t) => t.type));
         setTransactions(data);
 
         // Map transaction employees to full API Employee type
@@ -44,7 +48,7 @@ const TransactionsPage: React.FC = () => {
                     id: emp.id,
                     firstName: emp.firstName,
                     lastName: emp.lastName,
-                    storeId: 0, // default placeholder
+                    storeId: 0,
                     suspicionScore: 0,
                     flaggedCount: 0,
                     isFlagged: false,
@@ -58,7 +62,8 @@ const TransactionsPage: React.FC = () => {
         setEmployees(uniqueEmployees);
 
         if (employeeIdParam) {
-          const emp = uniqueEmployees.find(e => e.id === Number(employeeIdParam)) || null;
+          const emp =
+            uniqueEmployees.find((e) => e.id === Number(employeeIdParam)) || null;
           setSelectedEmployee(emp);
         }
       } catch (err) {
@@ -81,7 +86,7 @@ const TransactionsPage: React.FC = () => {
 
     const meetsType = typeParam
       ? typeParam.toLowerCase() === "purchases"
-        ? !tx.isFraud // ✅ Purchases slice shows all non-fraud transactions
+        ? !tx.isFraud
         : tx.type?.toLowerCase() === typeParam.toLowerCase()
       : true;
 
@@ -100,7 +105,6 @@ const TransactionsPage: React.FC = () => {
 
   return (
     <PageContainer>
-      {/* Filters */}
       <RiskFilter
         minRisk={minRisk}
         setMinRisk={setMinRisk}
@@ -109,13 +113,11 @@ const TransactionsPage: React.FC = () => {
         setEmployeeFilter={setSelectedEmployee}
       />
 
-      {/* Transactions Table */}
       <TransactionTable
         transactions={filteredTransactions}
         onSelectTransaction={setSelectedTransaction}
       />
 
-      {/* Transaction Details Modal */}
       {selectedTransaction && (
         <TransactionDetails
           transaction={selectedTransaction}

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_URL } from "./config";
 
 export interface Employee {
   id: number;
@@ -14,11 +15,11 @@ export interface Employee {
 }
 
 export async function fetchEmployeeById(id: number): Promise<Employee> {
-  const res = await axios.get(`http://localhost:5000/employees/${id}`);
+  const res = await axios.get(`${API_URL}/employees/${id}`);
   return res.data;
 }
 
 export async function fetchEmployees(): Promise<Employee[]> {
-  const res = await axios.get("http://localhost:5000/employees");
+  const res = await axios.get(`${API_URL}/employees`);
   return res.data;
 }

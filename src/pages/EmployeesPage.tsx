@@ -14,6 +14,11 @@ import {
 } from "recharts";
 
 /* ======================
+   Config
+====================== */
+const API_URL = "http://localhost:5000";
+
+/* ======================
    Types
 ====================== */
 type CustomerConnection = {
@@ -53,9 +58,13 @@ const EmployeesPage: React.FC = () => {
 
   useEffect(() => {
     async function fetchTransactions() {
-      const res = await fetch("http://localhost:5000/transactions");
-      const data = await res.json();
-      setTransactions(data);
+      try {
+        const res = await fetch(`${API_URL}/transactions`);
+        const data: Transaction[] = await res.json();
+        setTransactions(data);
+      } catch (err) {
+        console.error("❌ Failed to fetch transactions", err);
+      }
     }
     fetchTransactions();
   }, []);
@@ -348,7 +357,9 @@ const EmployeesPage: React.FC = () => {
                               }
                             >
                               <div className="font-medium">{c.name}</div>
-                              <div className="text-sm">Transactions: {c.count}</div>
+                              <div className="text-sm">
+                                Transactions: {c.count}
+                              </div>
                               <div className="text-sm">
                                 Avg Risk: <strong>{c.avgRisk.toFixed(1)}</strong>
                               </div>
